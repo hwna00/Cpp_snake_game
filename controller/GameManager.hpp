@@ -1,48 +1,83 @@
 #pragma once
 #include <ncurses.h>
 // for random
-#include <time.h>
 #include <stdlib.h>
+#include <time.h>
 
+#include "../model/Empty.hpp"
+#include "../model/GrowthItem.hpp"
+#include "../model/Snake.hpp"
 #include "../view/Board.hpp"
 #include "../view/Drawable.hpp"
-#include "../model/GrowthItem.hpp"
-#include "../model/Empty.hpp"
 
 class GameManager {
 public:
-    GameManager(int height, int width) {
-        board = Board(height, width);
-        board.initalize();
-        game_over = false;
-        srand(time(NULL));
+  GameManager(int height, int width) {
+    board = Board(height, width);
+    initailize();
+  }
+
+  ~GameManager() { delete growthitem; }
+
+  void initailize() {
+    growthitem = NULL;
+    board.initalize();
+    game_over = false;
+    srand(time(NULL));
+
+    snake.setDirection(down);
+    SnakePiece next = SnakePiece(1, 1);
+    board.add(next);
+    snake.addPiece(next);
+
+    next = snake.nextHead();
+    board.add(next);
+    snake.addPiece(next);
+
+    next = snake.nextHead();
+    board.add(next);
+    snake.addPiece(next);
+
+    snake.setDirection(right);
+    next = snake.nextHead();
+    board.add(next);
+    snake.addPiece(next);
+  }
+
+  void processInput() {
+    chtype input = board.getInput();
+    // process input
+  }
+
+  void updateState() {
+    // update status
+    if (growthitem == NULL) {
+      int y, x;
+      board.getEmptyCoordinates(y, x);
+      growthitem = new GrowthItem(y * 2.5, x);
+      board.add(*growthitem);
     }
 
-    ~GameManager() {delete growthitem;}
-
-    void processInput() {
-        chtype input = board.getInput();
-        // process input
+    SnakePiece next = snake.nextHead();
+    if (next.getX() != growthitem->getX() &&
+        next.getY() != growthitem->getY()) {
+      int emptyRow = snake.tail().getY();
+      int emptyCol = snake.tail().getX();
+      board.add(Empty(emptyRow, emptyCol));
+      snake.removePiece();
     }
 
-    void updateState() {
-        // update status
-        int y, x;
-        board.getEmptyCoordinates(y, x);
-        growthitem = new GrowthItem(y*2.5, x);
-        if (growthitem != NULL) board.add(Empty(growthitem->getY(), growthitem->getX()));
-        board.add(*growthitem);
-    }
+    board.add(next);
+    snake.addPiece(next);
+  }
 
-    void redraw() {
-        board.refresh();
-    }
+  void redraw() { board.refresh(); }
 
-    bool isOver() {
-        return game_over;
-    }
+  bool isOver() { return game_over; }
+
 private:
-    Board board;
-    bool game_over;
-    GrowthItem *growthitem;
+  Board board;
+  bool game_over;
+  GrowthItem *growthitem;
+  Snake snake;
 };
