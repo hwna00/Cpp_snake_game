@@ -82,7 +82,6 @@ public:
       board.getEmptyCoordinates(y, x);
       growthitem = new GrowthItem(y * 2.5, x);
       board.add(*growthitem);
-      growthitem = NULL;
     }
 
     SnakePiece next = snake.nextHead();
@@ -93,7 +92,6 @@ public:
       board.add(Empty(emptyRow, emptyCol));
       snake.removePiece();
     }
-
     board.add(next);
     snake.addPiece(next);
   }
