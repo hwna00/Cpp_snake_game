@@ -37,6 +37,8 @@ public:
 
   void refresh() { wrefresh(board_win); }
 
+  void setTimeout(int timeout) { wtimeout(board_win, timeout); }
+
 private:
   WINDOW *board_win;
   int height, width;
@@ -49,6 +51,7 @@ private:
 
     board_win = newwin(height, width, (yMax / 2) - (height / 2),
                        (xMax / 2) - (width / 2));
-    wtimeout(board_win, 500); // 프레임 설정
+    setTimeout(500); // 프레임 설정
+    keypad(board_win, true);
   }
 };
