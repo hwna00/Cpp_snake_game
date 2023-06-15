@@ -26,7 +26,7 @@ public:
     srand(time(NULL));
 
     snake.setDirection(down);
-    SnakePiece next = SnakePiece(1, 1);
+    SnakePiece next = SnakePiece(1, 2);
     board.add(next);
     snake.addPiece(next);
 
@@ -56,6 +56,7 @@ public:
       board.getEmptyCoordinates(y, x);
       growthitem = new GrowthItem(y * 2.5, x);
       board.add(*growthitem);
+      growthitem = NULL;
     }
 
     SnakePiece next = snake.nextHead();
