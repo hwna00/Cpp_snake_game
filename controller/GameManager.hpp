@@ -46,7 +46,33 @@ public:
 
   void processInput() {
     chtype input = board.getInput();
-    // process input
+    switch (input) {
+    case 'w':
+    case KEY_UP:
+      snake.setDirection(up);
+      break;
+    case 'a':
+    case KEY_LEFT:
+      snake.setDirection(left);
+      break;
+    case 's':
+    case KEY_DOWN:
+      snake.setDirection(down);
+      break;
+    case 'd':
+    case KEY_RIGHT:
+      snake.setDirection(right);
+      break;
+    case 'p':
+      board.setTimeout(-1); // -1은 유저가 다음 key를 입력할 때까지 blocking
+      while (board.getInput() != 'p') {
+      }
+      board.setTimeout(500);
+      break;
+
+    default:
+      break;
+    }
   }
 
   void updateState() {

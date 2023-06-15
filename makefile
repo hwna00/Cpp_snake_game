@@ -1,4 +1,4 @@
 all:main
 
-main:main.cpp view/Board.hpp controller/GameManager.hpp model/Snake.hpp
+main:main.cpp view/* controller/* model/*
 	g++ main.cpp -lncurses -o main

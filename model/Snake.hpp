@@ -3,7 +3,7 @@
 #include <ncurses.h>
 #include <queue>
 
-enum Direction { up, down, left, right };
+enum Direction { up = -1, down = 1, left = -2, right = 2 };
 
 class SnakePiece : public Drawable {
 
@@ -31,7 +31,11 @@ public:
   SnakePiece tail();
   SnakePiece head();
   Direction getDirection() { return cur_direction; }
-  void setDirection(Direction d) { cur_direction = d; }
+  void setDirection(Direction d) {
+    if (cur_direction + d != 0) {
+      cur_direction = d;
+    }
+  }
   SnakePiece nextHead() {
     int row = head().getY();
     int col = head().getX();

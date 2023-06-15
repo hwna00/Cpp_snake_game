@@ -6,8 +6,8 @@
 
 class Board {
 public:
-  Board() { 
-    construct(0, 0); 
+  Board() {
+    construct(0, 0);
     // init pallet
     init_pair(1, 0, 7); // 배경색 (블랙, 화이트)
     init_pair(2, 2, 2); // 사과 (그린, 그린)
@@ -22,17 +22,17 @@ public:
     refresh();
   }
 
-  void addBoarder() { 
+  void addBoarder() {
     box(board_win, 0, 0);
     wbkgd(board_win, COLOR_PAIR(1));
     wattron(board_win, COLOR_PAIR(4));
     for (int i = 0; i < height; i++) {
       addAt(i, 0, 'h');
-      addAt(i, width-2, 'h');
+      addAt(i, width - 2, 'h');
     }
     for (int i = 0; i < width * 2.5; i++) {
       addAt(0, i, 'r');
-      addAt(height-1, i, 'r');
+      addAt(height - 1, i, 'r');
     }
     wattroff(board_win, COLOR_PAIR(4));
   }
@@ -43,20 +43,21 @@ public:
 
   void addAt(int y, int x, chtype ch) {
     switch (ch) {
-      case 'X':
-        wattron(board_win, COLOR_PAIR(4));
-        mvwprintw(board_win, y, x, "X");
-        wattroff(board_win, COLOR_PAIR(4));
-        break;
-      default:
-        mvwaddch(board_win, y, x, ch);
+    case 'X':
+      wattron(board_win, COLOR_PAIR(4));
+      mvwprintw(board_win, y, x, "X");
+      wattroff(board_win, COLOR_PAIR(4));
+      break;
+    default:
+      mvwaddch(board_win, y, x, ch);
     }
   }
 
   chtype getInput() { return wgetch(board_win); }
 
   void getEmptyCoordinates(int &y, int &x) {
-    while ((mvwinch(board_win, y = rand() % height, x = rand() % width)) != ' ');
+    while ((mvwinch(board_win, y = rand() % height, x = rand() % width)) != ' ')
+      ;
   }
 
   void clear() {
@@ -65,6 +66,8 @@ public:
   }
 
   void refresh() { wrefresh(board_win); }
+
+  void setTimeout(int timeout) { wtimeout(board_win, timeout); }
 
 private:
   WINDOW *board_win;
@@ -76,7 +79,9 @@ private:
     this->height = height;
     this->width = width;
 
-    board_win = newwin(height, width, (yMax / 2) - (height / 2), (xMax / 2) - (width / 2));
-    wtimeout(board_win, 500); // 프레임 설정
+    board_win = newwin(height, width, (yMax / 2) - (height / 2),
+                       (xMax / 2) - (width / 2));
+    setTimeout(500); // 프레임 설정
+    keypad(board_win, true);
   }
 };
