@@ -14,13 +14,13 @@ class GameManager {
 public:
   GameManager(int height, int width) {
     board = Board(height, width);
+    growthitem = NULL;
     initailize();
   }
 
   ~GameManager() { delete growthitem; }
 
   void initailize() {
-    growthitem = NULL;
     board.initalize();
     game_over = false;
     srand(time(NULL));
@@ -105,7 +105,7 @@ private:
     if (growthitem == NULL) {
       int y, x;
       board.getEmptyCoordinates(y, x);
-      growthitem = new GrowthItem(y * 2.5, x);
+      growthitem = new GrowthItem(y, x);
       board.add(*growthitem);
     }
   }

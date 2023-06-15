@@ -11,10 +11,10 @@ public:
     construct(0, 0);
     // init pallet
     init_pair(1, 0, 7); // 배경색 (블랙, 화이트)
-    init_pair(2, 2, 2); // 사과 (그린, 그린)
-    init_pair(3, 4, 4); // 독사과 (레드, 레드)
-    init_pair(4, 8, 8); // 벽 (그레이, 그레이)
-    init_pair(5, 5, 5); // 지렁이 (브라운, 브라운)
+    init_pair(2, 1, 2); // 사과 (그린, 그린)
+    init_pair(3, 1, 4); // 독사과 (레드, 레드)
+    init_pair(4, 1, 8); // 벽 (그레이, 그레이)
+    init_pair(5, 1, 5); // 지렁이 (브라운, 브라운)
   }
 
   Board(int height, int width) { construct(height, width); }
@@ -54,23 +54,28 @@ public:
     switch (ch) {
       case 'X':
         wattron(board_win, COLOR_PAIR(4));
-        mvwprintw(board_win, y, x, "X");
+        mvwaddch(board_win, y, x, ch);
         wattroff(board_win, COLOR_PAIR(4));
         break;
       case 'E':
         wattron(board_win, COLOR_PAIR(1));
-        mvwprintw(board_win, y, x, " ");
+        mvwaddch(board_win, y, x, ch);
         wattroff(board_win, COLOR_PAIR(1));
         break;
       case '#':
         wattron(board_win, COLOR_PAIR(5));
-        mvwprintw(board_win, y, x, "#");
+        mvwaddch(board_win, y, x, ch);
         wattroff(board_win, COLOR_PAIR(5));
         break;
       case 'A':
         wattron(board_win, COLOR_PAIR(2));
-        mvwprintw(board_win, y, x, "A");
+        mvwaddch(board_win, y, x, ch);
         wattroff(board_win, COLOR_PAIR(2));
+        break;
+      case 'P':
+        wattron(board_win, COLOR_PAIR(3));
+        mvwaddch(board_win, y, x, ch);
+        wattroff(board_win, COLOR_PAIR(3));
         break;
       default:
         mvwaddch(board_win, y, x, ch);
@@ -80,8 +85,9 @@ public:
   chtype getInput() { return wgetch(board_win); }
 
   void getEmptyCoordinates(int &y, int &x) {
-    while ((mvwinch(board_win, y = rand() % height, x = rand() % width)) != ' ')
-      ;
+    int newHeight = height-3;
+    int newWidth = width-2;
+    while (((mvwinch(board_win, y = rand() % newWidth + 1, x = rand() % newHeight + 2)) == 'E'));
   }
 
   void clear() {

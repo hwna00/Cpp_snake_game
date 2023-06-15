@@ -8,12 +8,7 @@ enum Direction { up = -1, down = 1, left = -2, right = 2 };
 class SnakePiece : public Drawable {
 
 public:
-  SnakePiece() {
-    this->x = this->y = 0;
-    this->icon = '#';
-  };
-
-  SnakePiece(int y, int x) {
+  SnakePiece(int y = 0, int x = 0) {
     this->x = x;
     this->y = y;
     this->icon = '#';
