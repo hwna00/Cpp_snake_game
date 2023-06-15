@@ -26,22 +26,15 @@ public:
     srand(time(NULL));
 
     snake.setDirection(down);
-    SnakePiece next = SnakePiece(1, 2);
-    board.add(next);
-    snake.addPiece(next);
-
-    next = snake.nextHead();
-    board.add(next);
-    snake.addPiece(next);
-
-    next = snake.nextHead();
-    board.add(next);
-    snake.addPiece(next);
-
+    handleNextPiece(SnakePiece(1, 2));
+    handleNextPiece(SnakePiece(snake.nextHead()));
+    handleNextPiece(SnakePiece(snake.nextHead()));
     snake.setDirection(right);
-    next = snake.nextHead();
-    board.add(next);
-    snake.addPiece(next);
+    handleNextPiece(SnakePiece(snake.nextHead()));
+
+    if (growthitem == NULL) {
+      createGrowthItem();
+    }
   }
 
   void processInput() {
@@ -76,24 +69,11 @@ public:
   }
 
   void updateState() {
-    // update status
-    if (growthitem == NULL) {
-      int y, x;
-      board.getEmptyCoordinates(y, x);
-      growthitem = new GrowthItem(y * 2.5, x);
-      board.add(*growthitem);
-    }
+    handleNextPiece(snake.nextHead());
 
-    SnakePiece next = snake.nextHead();
-    if (next.getX() != growthitem->getX() &&
-        next.getY() != growthitem->getY()) {
-      int emptyRow = snake.tail().getY();
-      int emptyCol = snake.tail().getX();
-      board.add(Empty(emptyRow, emptyCol));
-      snake.removePiece();
+    if (growthitem == NULL) {
+      createGrowthItem();
     }
-    board.add(next);
-    snake.addPiece(next);
   }
 
   void redraw() { board.refresh(); }
@@ -105,4 +85,28 @@ private:
   bool game_over;
   GrowthItem *growthitem;
   Snake snake;
+
+  void handleNextPiece(SnakePiece next) {
+    if (growthitem != NULL && (next.getX() != growthitem->getX() ||
+                               next.getY() != growthitem->getY())) {
+      int emptyRow = snake.tail().getY();
+      int emptyCol = snake.tail().getX();
+      board.add(Empty(emptyRow, emptyCol));
+      snake.removePiece();
+    } else {
+      delete growthitem;
+      growthitem = NULL;
+    }
+    board.add(next);
+    snake.addPiece(next);
+  }
+
+  void createGrowthItem() {
+    if (growthitem == NULL) {
+      int y, x;
+      board.getEmptyCoordinates(y, x);
+      growthitem = new GrowthItem(y * 2.5, x);
+      board.add(*growthitem);
+    }
+  }
 };
