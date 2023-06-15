@@ -33,7 +33,7 @@ public:
     handleNextPiece(SnakePiece(snake.nextHead()));
 
     if (growthitem == NULL) {
-      createApple();
+      createGrowthItem();
     }
   }
 
@@ -72,7 +72,7 @@ public:
     handleNextPiece(snake.nextHead());
 
     if (growthitem == NULL) {
-      createApple();
+      createGrowthItem();
     }
   }
 
@@ -101,7 +101,7 @@ private:
     snake.addPiece(next);
   }
 
-  void createApple() {
+  void createGrowthItem() {
     if (growthitem == NULL) {
       int y, x;
       board.getEmptyCoordinates(y, x);
