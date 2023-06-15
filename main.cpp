@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   curs_set(0);
 
   GameManager game(BOARD_ROWS, BOARD_COLUMNS);
-
+  
   while (!game.isOver()) {
     // 1 : User input
     game.processInput();
