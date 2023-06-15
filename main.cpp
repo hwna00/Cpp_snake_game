@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
   initscr();
   refresh();
   noecho();
+  start_color();
 
   curs_set(0);
 
