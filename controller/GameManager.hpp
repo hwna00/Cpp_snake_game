@@ -4,9 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../model/Empty.hpp"
-#include "../model/GrowthItem.hpp"
-#include "../model/PoisonItem.hpp"
+#include "../model/Item.hpp"
 #include "../model/Snake.hpp"
 #include "../view/Board.hpp"
 #include "../view/Drawable.hpp"
