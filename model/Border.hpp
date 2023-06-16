@@ -4,9 +4,9 @@
 
 class Border : public Drawable {
 public:
-    Border(int y, int x) {
-        this->y = y;
-        this->x = x;
-        this->icon = 'X';
+    Border(int row, int col) {
+        this->row = row;
+        this->col = col;
+        this->icon = '1';
     }
 };

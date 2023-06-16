@@ -4,9 +4,9 @@
 
 class PoisonItem : public Drawable {
 public:
-    PoisonItem(int y, int x) {
-        this->y = y;
-        this->x = x;
+    PoisonItem(int row, int col) {
+        this->row = row;
+        this->col = col;
         this->icon = 'P';
     }
 };

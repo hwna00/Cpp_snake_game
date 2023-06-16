@@ -4,9 +4,9 @@
 
 class Empty : public Drawable {
 public:
-    Empty(int y, int x) {
-        this->y = y;
-        this->x = x;
-        this->icon = 'E';
+    Empty(int row, int col) {
+        this->row = row;
+        this->col = col;
+        this->icon = '0';
     }
 };
