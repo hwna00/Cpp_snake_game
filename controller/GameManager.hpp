@@ -4,9 +4,10 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "../model/Empty.hpp"
+#include "../model/Gate.hpp"
 #include "../model/Item.hpp"
 #include "../model/Snake.hpp"
-#include "../model/Empty.hpp"
 #include "../view/Board.hpp"
 #include "../view/Drawable.hpp"
 
@@ -27,6 +28,7 @@ public:
   void initailize() {
     board.initialize();
     game_over = false;
+    isGateOpen = false;
     srand(time(NULL));
 
     snake.setDirection(down);
@@ -84,6 +86,19 @@ public:
     if (snake.getBodyLength() <= 3) {
       game_over = true;
     }
+
+    if (snake.getBodyLength() >= 5 && !isGateOpen) {
+      isGateOpen = true;
+
+      int inGateRow, inGateCol;
+      int outGateRow, outGateCol;
+      board.getNormalWallCoordinates(inGateRow, inGateCol);
+      board.getNormalWallCoordinates(outGateRow, outGateCol);
+      inGate = Gate(inGateRow, inGateCol);
+      outGate = Gate(outGateRow, outGateCol);
+      board.add(inGate);
+      board.add(outGate);
+    }
   }
 
   void redraw() { board.refrash(); }
@@ -96,6 +111,8 @@ private:
   GrowthItem *growthitem;
   PoisonItem *poisonitem;
   Snake snake;
+  Gate inGate, outGate;
+  bool isGateOpen;
 
   void handleNextPiece(SnakePiece next) {
     if (growthitem != NULL) {
