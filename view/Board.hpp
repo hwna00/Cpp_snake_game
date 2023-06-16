@@ -39,6 +39,7 @@ public:
         init_pair(3, 1, 4); // 독사과 (레드, 레드)
         init_pair(4, 1, 8); // 벽 (그레이, 그레이)
         init_pair(5, 1, 5); // 지렁이 (브라운, 브라운)
+        init_pair(6, 1, 3); // 게이트 (시안, 시안)
     }
 
     void addAt(int row, int col, chtype icon, int n) {
@@ -66,6 +67,9 @@ public:
             // 뱀
             case '#':
                 n = 5; break;
+            // 게이트
+            case 'G':
+                n = 6; break;
             default:
                 n = 0;
         }
