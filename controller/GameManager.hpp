@@ -16,14 +16,10 @@ class GameManager {
 public:
   GameManager(int level) {
     board = Board(level);
-    growthitem = NULL;
-    poisonitem = NULL;
+    gLimit = board.getGrowthCnt();
+    pLimit = board.getPoisonCnt();
+    gCount = pCount = 0;
     initailize();
-  }
-
-  ~GameManager() {
-    delete growthitem;
-    delete poisonitem;
   }
 
   void initailize() {
@@ -31,18 +27,15 @@ public:
     game_over = false;
     isGateOpen = false;
     srand(time(NULL));
-
     snake.setDirection(down);
-    handleNextPiece(SnakePiece(1, 2));
-    handleNextPiece(SnakePiece(snake.nextHead()));
-    handleNextPiece(SnakePiece(snake.nextHead()));
+    initSnake(SnakePiece(1, 2));
+    initSnake(SnakePiece(snake.nextHead()));
+    initSnake(SnakePiece(snake.nextHead()));
     snake.setDirection(right);
-    handleNextPiece(SnakePiece(snake.nextHead()));
+    initSnake(SnakePiece(snake.nextHead()));
 
-    if (growthitem == NULL)
-      createGrowthItem();
-    if (poisonitem == NULL)
-      createPoisonItem();
+    createItem();
+    resetTimmer();
   }
 
   void processInput() {
@@ -79,10 +72,10 @@ public:
   void updateState() {
     handleNextPiece(snake.nextHead());
 
-    if (growthitem == NULL)
-      createGrowthItem();
-    if (poisonitem == NULL)
-      createPoisonItem();
+    if (checkTimmer(30)) { // 30초 지날 때 마다 item reset 구현
+      resetItem();
+      createItem();
+    }
 
     if (snake.getBodyLength() <= 3) {
       game_over = true;
@@ -109,107 +102,125 @@ public:
 private:
   Board board;
   bool game_over;
-  GrowthItem *growthitem;
-  PoisonItem *poisonitem;
   Snake snake;
+  int gLimit, pLimit, gCount, pCount;
+  clock_t starttimer, currenttimer; // 타이머
   Gate firstGate, secondGate;
   bool isGateOpen;
 
-  void handleNextPiece(SnakePiece next) {
-    if (growthitem != NULL || poisonitem != NULL) {
-      switch (board.getChatAt(next.getRow(), next.getCol())) {
-      case 'A': //* 성장 아이템을 먹었을 때
-        destroyItem('A');
-        break;
-      case 'P': //* 독 아이템을 먹었을 때
-      {
-        insertEmpty();
-        insertEmpty();
-        destroyItem('P');
-        break;
-      }
-      case 'G': //* 게이트를 지나는 경우
-      {
-        int nextRow;
-        int nextCol;
-        if (firstGate.getRow() == next.getRow() &&
-            firstGate.getCol() == next.getCol()) {
-          //* firstGate로 들어온 상황
-          nextRow = secondGate.getRow();
-          nextCol = secondGate.getCol();
-        } else {
-          nextRow = firstGate.getRow();
-          nextCol = firstGate.getCol();
-        }
+  void resetTimmer() { starttimer = time(NULL); }
+  bool checkTimmer(int sec) {
+    currenttimer = time(NULL);
+    if ((currenttimer - starttimer) > sec) {
+      starttimer = currenttimer;
+      return true;
+    }
+    return false;
+  }
 
-        //! 이슈: firstGate와 secondGate가 같은 벽에 있다면 에러가 발생한다.
-        //* 출구 게이트가 벽의 가장자리에 있는 경우
-        if (nextRow == 0) {
-          // 상단 게이트에서 아래로 내려오는 경우
-          snake.setDirection(down);
-          next.setCoordinates(nextRow + 1, nextCol);
-        } else if (nextRow == 31) {
-          // 하단 게이트에서 위로 올라오는 경우
-          snake.setDirection(up);
-          next.setCoordinates(nextRow - 1, nextCol);
-        } else if (nextCol == 1) {
-          // 좌측 게이트에서 나와 우측으로 이동하는 경우
-          snake.setDirection(right);
-          next.setCoordinates(nextRow, nextCol + 1);
-        } else if (nextCol == 59) {
-          // 우측 게이트에서 나와 좌측으로 이동하는 경우
-          snake.setDirection(left);
-          next.setCoordinates(nextRow, nextCol - 1);
-        }
+  void initSnake(SnakePiece next) { // init 단계에서 snake를 추가하는 함수
+    board.add(next);
+    snake.addPiece(next);
+  }
 
-        // Todo: 출구 게이트가 중간 벽에 있는 경우
-        // ...
+  void
+  handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
+    switch (board.getChatAt(next.getRow(), next.getCol())) {
+    case 'A': //* 성장 아이템을 먹었을 때
+      destroyItem('A');
+      break;
+    case 'P': //* 독 아이템을 먹었을 때
+    {
+      insertEmpty();
+      insertEmpty();
+      destroyItem('P');
+      break;
+    }
+    case 'G': //* 게이트를 지나는 경우
+    {
+      int nextRow;
+      int nextCol;
+      if (firstGate.getRow() == next.getRow() &&
+          firstGate.getCol() == next.getCol()) {
+        //* firstGate로 들어온 상황
+        nextRow = secondGate.getRow();
+        nextCol = secondGate.getCol();
+      } else {
+        nextRow = firstGate.getRow();
+        nextCol = firstGate.getCol();
+      }
 
-        insertEmpty();
-        break;
+      //! 이슈: firstGate와 secondGate가 같은 벽에 있다면 에러가 발생한다.
+      //* 출구 게이트가 벽의 가장자리에 있는 경우
+      if (nextRow == 0) {
+        // 상단 게이트에서 아래로 내려오는 경우
+        snake.setDirection(down);
+        next.setCoordinates(nextRow + 1, nextCol);
+      } else if (nextRow == 31) {
+        // 하단 게이트에서 위로 올라오는 경우
+        snake.setDirection(up);
+        next.setCoordinates(nextRow - 1, nextCol);
+      } else if (nextCol == 1) {
+        // 좌측 게이트에서 나와 우측으로 이동하는 경우
+        snake.setDirection(right);
+        next.setCoordinates(nextRow, nextCol + 1);
+      } else if (nextCol == 59) {
+        // 우측 게이트에서 나와 좌측으로 이동하는 경우
+        snake.setDirection(left);
+        next.setCoordinates(nextRow, nextCol - 1);
       }
-      case '0': //* 빈 공간을 지나갈 때
-      {
-        insertEmpty();
-        break;
-      }
-      default: //* 빈 공간도 아니고, 아이템도 아닌 지역 == 벽 or 스네이크 몸체
-        game_over = true;
-        break;
-      }
+
+      // Todo: 출구 게이트가 중간 벽에 있는 경우
+      // ...
+
+      insertEmpty();
+      break;
+    }
+    case '0': //* 빈 공간을 지나갈 때
+    {
+      insertEmpty();
+      break;
+    }
+    default: //* 빈 공간도 아니고,아이템도 아닌 지역 == 벽 or 스네이크 몸체
+      game_over = true;
+      break;
     }
 
     board.add(next);
     snake.addPiece(next);
   }
 
-  void createGrowthItem() {
-    if (growthitem == NULL) {
-      int y, x;
-      board.getEmptyCoordinates(y, x);
-      growthitem = new GrowthItem(y, x);
-      board.add(*growthitem);
-    }
+  void resetItem() {
+    int row = board.getRow(), col = board.getCol();
+    for (int i = 0; i < row; i++)
+      for (int j = 0; j < col; j++)
+        if (board.getChatAt(i, j) == 'A' || board.getChatAt(i, j) == 'P')
+          board.add(Empty(i, j));
   }
 
-  void createPoisonItem() {
-    if (poisonitem == NULL) {
+  void createItem() {
+    int gc = 0, pc = 0;
+    while (gc < gLimit) {
       int y, x;
       board.getEmptyCoordinates(y, x);
-      poisonitem = new PoisonItem(y, x);
-      board.add(*poisonitem);
+      board.add(GrowthItem(y, x));
+      gc++;
+    }
+    while (pc < pLimit) {
+      int y, x;
+      board.getEmptyCoordinates(y, x);
+      board.add(PoisonItem(y, x));
+      pc++;
     }
   }
 
   void destroyItem(char itemType) {
     switch (itemType) {
     case 'A':
-      delete growthitem;
-      growthitem = NULL;
+      gCount--;
       break;
     case 'P':
-      delete poisonitem;
-      poisonitem = NULL;
+      pCount--;
       break;
     default:
       break;
