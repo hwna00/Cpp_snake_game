@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "../model/Border.hpp"
 #include "../model/Empty.hpp"
 #include "../model/Gate.hpp"
 #include "../model/Item.hpp"
@@ -88,6 +89,10 @@ public:
     if (isGateOpen && isEnterGate && gateCnt == 0) {
       isGateOpen = false;
       isEnterGate = false;
+      Border Wall1(firstGate.getRow(), firstGate.getCol());
+      Border Wall2(secondGate.getRow(), secondGate.getCol());
+      board.add(Wall1);
+      board.add(Wall2);
     }
 
     if (snake.getBodyLength() >= 4 && !isGateOpen) {
