@@ -1,118 +1,95 @@
 #pragma once
 
-#include "Drawable.hpp"
-#include "../model/Border.hpp"
 #include <ncurses.h>
-#include <stdlib.h>
-
+#include <iostream>
+#include "Map.hpp"
+#include "Drawable.hpp"
 class Board {
+Map m;
+int level, col, row;
+WINDOW *board_win;
+
 public:
-  Board() {
-    construct(0, 0);
-    // init pallet
-    init_pair(1, 0, 7); // 배경색 (블랙, 화이트)
-    init_pair(2, 1, 2); // 사과 (그린, 그린)
-    init_pair(3, 1, 4); // 독사과 (레드, 레드)
-    init_pair(4, 1, 8); // 벽 (그레이, 그레이)
-    init_pair(5, 1, 5); // 지렁이 (브라운, 브라운)
-  }
-
-  Board(int height, int width) { construct(height, width); }
-
-  void initalize() {
-    clear();
-    refresh();
-  }
-
-  void addBlank() {
-    for (int i = 0; i < height; i++)
-      for (int j = 0; j < width * 2.5; j++)
-        add(Empty(i, j));
-  }
-
-  void addBoarder() { 
-    box(board_win, 0, 0);
-    wattron(board_win, COLOR_PAIR(4));
-    for (int i = 0; i < height; i++) {
-      add(Border(i, 0));
-      add(Border(i, 1));
-      add(Border(i, width-2));
-      add(Border(i, width-1));
+    Board(int level = 0) : level(level) {
+        m = Map(level);
+        int xMax, yMax;
+        getmaxyx(stdscr, yMax, xMax);
+        col = m.getCol(), row = m.getRow();
+        board_win =  newwin(row, col, 1, 3);
+        setTimeout(500);
+        keypad(board_win, true);
     }
-    for (int i = 0; i < width * 2.5; i++) {
-      add(Border(0, i));
-      add(Border(height-1, i));
+
+    void initialize() {
+        initColor();
+        initBoarder();
+        refrash();
     }
-    wattroff(board_win, COLOR_PAIR(4));
-  }
 
-  void add(Drawable drawable) {
-    addAt(drawable.getY(), drawable.getX(), drawable.getIcon());
-  }
+    chtype getInput() { return wgetch(board_win); }
 
-  void addAt(int y, int x, chtype ch) {
-    switch (ch) {
-      case 'X':
-        wattron(board_win, COLOR_PAIR(4));
-        mvwaddch(board_win, y, x, ch);
-        wattroff(board_win, COLOR_PAIR(4));
-        break;
-      case 'E':
-        wattron(board_win, COLOR_PAIR(1));
-        mvwaddch(board_win, y, x, ch);
-        wattroff(board_win, COLOR_PAIR(1));
-        break;
-      case '#':
-        wattron(board_win, COLOR_PAIR(5));
-        mvwaddch(board_win, y, x, ch);
-        wattroff(board_win, COLOR_PAIR(5));
-        break;
-      case 'A':
-        wattron(board_win, COLOR_PAIR(2));
-        mvwaddch(board_win, y, x, ch);
-        wattroff(board_win, COLOR_PAIR(2));
-        break;
-      case 'P':
-        wattron(board_win, COLOR_PAIR(3));
-        mvwaddch(board_win, y, x, ch);
-        wattroff(board_win, COLOR_PAIR(3));
-        break;
-      default:
-        mvwaddch(board_win, y, x, ch);
+    void refrash() {
+        wrefresh(board_win);
     }
-  }
 
-  chtype getInput() { return wgetch(board_win); }
+    void initColor() {
+        init_pair(0, 1, 0); // Deafult (블랙, 블랙)
+        init_pair(1, 1, 7); // 배경색 (블랙, 화이트)
+        init_pair(2, 1, 2); // 사과 (그린, 그린)
+        init_pair(3, 1, 4); // 독사과 (레드, 레드)
+        init_pair(4, 1, 8); // 벽 (그레이, 그레이)
+        init_pair(5, 1, 5); // 지렁이 (브라운, 브라운)
+    }
 
-  void getEmptyCoordinates(int &y, int &x) {
-    int newHeight = height-3;
-    int newWidth = width-2;
-    while (((mvwinch(board_win, y = rand() % newWidth + 1, x = rand() % newHeight + 2)) == 'E'));
-  }
+    void addAt(int row, int col, chtype icon, int n) {
+        wattron(board_win, COLOR_PAIR(n));
+        mvwaddch(board_win, row, col, icon);
+        wattroff(board_win, COLOR_PAIR(n));
+    }
 
-  void clear() {
-    wclear(board_win);
-    addBlank();
-    addBoarder();
-  }
+    void add(Drawable drawable) {
+        int n;
+        switch (drawable.getIcon()) {
+            // 벽
+            case 'X':
+            case '1':
+                n = 4; break;
+            // 공백
+            case '0':
+                n = 1; break;
+            // 사과
+            case 'A':
+                n = 2; break;
+            // 독사과
+            case 'P':
+                n = 3; break;
+            // 뱀
+            case '#':
+                n = 5; break;
+            default:
+                n = 0;
+        }
+        addAt(drawable.getRow(), drawable.getCol(), drawable.getIcon(), n);
+        m.setData(drawable.getRow(), drawable.getCol(), drawable.getIcon()); // map Data 업데이트
+        wrefresh(board_win);
+    }
+    
+    void initBoarder() {
+        wclear(board_win);
+        
+        for (int i = 0; i < row; i++)
+            for (int j = 0; j < col; j++)
+                add(Drawable(i, j, m.getData(i, j)));
+    }
 
-  void refresh() { wrefresh(board_win); }
+    void getEmptyCoordinates(int &r, int &c) {
+        do {
+            r = rand() % row; c = rand() % col;
+        }while (m.getData(r, c) != '0');
+    }
 
-  void setTimeout(int timeout) { wtimeout(board_win, timeout); }
+    void setTimeout(int timeout) { wtimeout(board_win, timeout); }
 
-private:
-  WINDOW *board_win;
-  int height, width;
-
-  void construct(int height, int width) {
-    int xMax, yMax;
-    getmaxyx(stdscr, yMax, xMax);
-    this->height = height;
-    this->width = width;
-
-    board_win = newwin(height, width, (yMax / 2) - (height / 2),
-                       (xMax / 2) - (width / 2));
-    setTimeout(500); // 프레임 설정
-    keypad(board_win, true);
-  }
+    int getGrowthCnt() { return m.getGrowthCnt(); }
+    int getPoisonCnt() { return m.getPoisonCnt(); }
 };
