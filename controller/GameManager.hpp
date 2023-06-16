@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>
@@ -129,12 +130,11 @@ private:
       }
       case 'G': //* 게이트를 지나는 경우
       {
-        //! 이슈: 게이트를 지나는 중에 방향키를 누르면 방향이 바뀌어 버린다.
         int nextRow;
         int nextCol;
         if (firstGate.getRow() == next.getRow() &&
             firstGate.getCol() == next.getCol()) {
-          // Todo: firstGate로 들어온 상황
+          //* firstGate로 들어온 상황
           nextRow = secondGate.getRow();
           nextCol = secondGate.getCol();
         } else {
@@ -147,22 +147,23 @@ private:
         if (nextRow == 0) {
           // 상단 게이트에서 아래로 내려오는 경우
           snake.setDirection(down);
-          next = SnakePiece(nextRow, nextCol);
+          next.setCoordinates(nextRow + 1, nextCol);
         } else if (nextRow == 31) {
           // 하단 게이트에서 위로 올라오는 경우
           snake.setDirection(up);
-          next = SnakePiece(nextRow, nextCol);
+          next.setCoordinates(nextRow - 1, nextCol);
         } else if (nextCol == 1) {
           // 좌측 게이트에서 나와 우측으로 이동하는 경우
           snake.setDirection(right);
-          next = SnakePiece(nextRow, nextCol);
+          next.setCoordinates(nextRow, nextCol + 1);
         } else if (nextCol == 59) {
           // 우측 게이트에서 나와 좌측으로 이동하는 경우
           snake.setDirection(left);
-          next = SnakePiece(nextRow, nextCol);
+          next.setCoordinates(nextRow, nextCol - 1);
         }
 
         // Todo: 출구 게이트가 중간 벽에 있는 경우
+        // ...
 
         insertEmpty();
         break;
