@@ -10,15 +10,26 @@
 #include "../model/Item.hpp"
 #include "../model/Snake.hpp"
 #include "../view/Board.hpp"
+#include "../view/ScoreBoard.hpp"
 #include "../view/Drawable.hpp"
 
 class GameManager {
+private:
+  Board board; ScoreBoard scoreboard;
+  bool game_over;
+  Snake snake;
+  int gLimit, pLimit, gCount, pCount, gateCount;
+  clock_t starttimer, currenttimer; // 타이머
+  Gate firstGate, secondGate;
+  bool isGateOpen;
+
 public:
   GameManager(int level) {
     board = Board(level);
+    scoreboard = ScoreBoard();
     gLimit = board.getGrowthCnt();
     pLimit = board.getPoisonCnt();
-    gCount = pCount = 0;
+    gCount = pCount = gateCount = 0;
     initailize();
   }
 
@@ -93,20 +104,15 @@ public:
       board.add(firstGate);
       board.add(secondGate);
     }
+
+    scoreboard.loadScore(std::to_string(snake.getBodyLength()).c_str(), std::to_string(gCount).c_str(), std::to_string(pCount).c_str(), std::to_string(gateCount).c_str());
   }
 
-  void redraw() { board.refrash(); }
+  void redraw() { board.refrash(); scoreboard.refrash(); }
 
   bool isOver() { return game_over; }
 
 private:
-  Board board;
-  bool game_over;
-  Snake snake;
-  int gLimit, pLimit, gCount, pCount;
-  clock_t starttimer, currenttimer; // 타이머
-  Gate firstGate, secondGate;
-  bool isGateOpen;
 
   void resetTimmer() { starttimer = time(NULL); }
   bool checkTimmer(int sec) {
@@ -127,10 +133,12 @@ private:
   handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
     switch (board.getChatAt(next.getRow(), next.getCol())) {
     case 'A': //* 성장 아이템을 먹었을 때
+      gCount++;
       destroyItem('A');
       break;
     case 'P': //* 독 아이템을 먹었을 때
     {
+      pCount++;
       insertEmpty();
       insertEmpty();
       destroyItem('P');
@@ -138,6 +146,7 @@ private:
     }
     case 'G': //* 게이트를 지나는 경우
     {
+      gateCount++;
       int nextRow;
       int nextCol;
       if (firstGate.getRow() == next.getRow() &&
@@ -217,10 +226,8 @@ private:
   void destroyItem(char itemType) {
     switch (itemType) {
     case 'A':
-      gCount--;
       break;
     case 'P':
-      pCount--;
       break;
     default:
       break;
