@@ -100,8 +100,8 @@ public:
 
   void getNormalWallCoordinates(int &r, int &c) {
     do {
-      r = rand() % row; // 0 ~ 31
-      c = rand() % col; //
+      r = rand() % row;
+      c = rand() % col;
     } while (m.getData(r, c) != '1');
   }
 

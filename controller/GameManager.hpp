@@ -130,7 +130,6 @@ private:
       case 'G': //* 게이트를 지나는 경우
       {
         //! 이슈: 게이트를 지나는 중에 방향키를 누르면 방향이 바뀌어 버린다.
-        //! 이슈: firstGate와 secondGate가 같은 벽에 있다면 에러가 발생한다.
         int nextRow;
         int nextCol;
         if (firstGate.getRow() == next.getRow() &&
@@ -143,7 +142,8 @@ private:
           nextCol = firstGate.getCol();
         }
 
-        // Todo: secondGate가 벽의 가장자리에 있는 경우
+        //! 이슈: firstGate와 secondGate가 같은 벽에 있다면 에러가 발생한다.
+        //* 출구 게이트가 벽의 가장자리에 있는 경우
         if (nextRow == 0) {
           // 상단 게이트에서 아래로 내려오는 경우
           snake.setDirection(down);
@@ -162,7 +162,7 @@ private:
           next = SnakePiece(nextRow, nextCol);
         }
 
-        // Todo: secondGate가 중간 벽에 있는 경우
+        // Todo: 출구 게이트가 중간 벽에 있는 경우
 
         insertEmpty();
         break;
