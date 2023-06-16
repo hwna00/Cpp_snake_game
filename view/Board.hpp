@@ -84,14 +84,6 @@ public:
               add(Drawable(i, j, m.getData(i, j)));
   }
 
-  void initBoarder() {
-    wclear(board_win);
-
-    for (int i = 0; i < row; i++)
-      for (int j = 0; j < col; j++)
-        add(Drawable(i, j, m.getData(i, j)));
-  }
-
   void getEmptyCoordinates(int &r, int &c) {
     do {
       r = rand() % row;
