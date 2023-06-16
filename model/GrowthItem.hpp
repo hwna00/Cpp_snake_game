@@ -4,9 +4,9 @@
 
 class GrowthItem : public Drawable {
 public:
-    GrowthItem(int x, int y) {
-        this->y = y;
-        this->x = x;
+    GrowthItem(int row, int col) {
+        this->row = row;
+        this->col = col;
         this->icon = 'A';
     }
 };
