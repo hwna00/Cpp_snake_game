@@ -8,11 +8,13 @@
 #define ROWS 32 // 스테이지 줄 수
 #define COLS 61 // 스테이지 컬럼 수
 
+
 class Map {
 int level, poisonCnt, growthCnt;
 char data[ROWS][COLS];
 public:
     Map(int level = 0) : level(level), growthCnt(level), poisonCnt(level){
+        char temp[120];
         std::ifstream readFile;
         std::string src = "src/stage" + std::to_string(level + 1) + ".txt";
 
@@ -20,7 +22,6 @@ public:
 
         int height = 0;
         while (height < ROWS) {
-            char temp[120];
             readFile.getline(temp, 120);
 
             for (int i = 0; i < COLS; i++) {
@@ -28,6 +29,18 @@ public:
             }
             height++;
         }
+
+        readFile.close();
+        src = "src/rules.txt";
+        readFile.open(src);
+
+        height = 0;
+        while (height < level+1) {
+            readFile.getline(temp, 120);
+            height++;
+        }
+        poisonCnt = temp[0] - '0';
+        growthCnt = temp[1] - '0';
 
         // 정상적으로 데이터를 수신하였는지 log 파일 생성
         std::string path = "src/debug/stage.txt";
@@ -39,6 +52,7 @@ public:
                 }
                 writeFile << "\n";
             }
+            writeFile << growthCnt << poisonCnt;
         }
     }
 

@@ -97,4 +97,7 @@ public:
 
   int getGrowthCnt() { return m.getGrowthCnt(); }
   int getPoisonCnt() { return m.getPoisonCnt(); }
+
+  int getCol() { return col; }
+  int getRow() { return row; }
 };

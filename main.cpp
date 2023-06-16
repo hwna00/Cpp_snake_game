@@ -1,5 +1,5 @@
-#include "controller/GameManager.hpp"
 #include <ncurses.h>
+#include "controller/GameManager.hpp"
 
 int main(int argc, char **argv) {
   initscr();
@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   curs_set(0);
 
   GameManager game(0);
-
+  
   while (!game.isOver()) {
     // 1 : User input
     game.processInput();
