@@ -1,21 +1,16 @@
-#include "controller/GameManager.hpp"
-#include "view/Board.hpp"
-#include "view/Drawable.hpp"
 #include <ncurses.h>
-
-#define BOARD_DIM 25
-#define BOARD_ROWS BOARD_DIM
-#define BOARD_COLUMNS BOARD_DIM * 2.5
+#include "controller/GameManager.hpp"
 
 int main(int argc, char **argv) {
   initscr();
   refresh();
+
   noecho();
   start_color();
 
   curs_set(0);
 
-  GameManager game(BOARD_ROWS, BOARD_COLUMNS);
+  GameManager game(0);
   
   while (!game.isOver()) {
     // 1 : User input
