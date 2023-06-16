@@ -1,12 +1,14 @@
 #pragma once
 
+#include <iostream>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>
 
+#include "../model/Empty.hpp"
+#include "../model/Gate.hpp"
 #include "../model/Item.hpp"
 #include "../model/Snake.hpp"
-#include "../model/Empty.hpp"
 #include "../view/Board.hpp"
 #include "../view/Drawable.hpp"
 
@@ -14,7 +16,8 @@ class GameManager {
 public:
   GameManager(int level) {
     board = Board(level);
-    gLimit = board.getGrowthCnt(); pLimit = board.getPoisonCnt();
+    gLimit = board.getGrowthCnt();
+    pLimit = board.getPoisonCnt();
     gCount = pCount = 0;
     initailize();
   }
@@ -22,6 +25,7 @@ public:
   void initailize() {
     board.initialize();
     game_over = false;
+    isGateOpen = false;
     srand(time(NULL));
     snake.setDirection(down);
     initSnake(SnakePiece(1, 2));
@@ -29,7 +33,7 @@ public:
     initSnake(SnakePiece(snake.nextHead()));
     snake.setDirection(right);
     initSnake(SnakePiece(snake.nextHead()));
-  
+
     createItem();
     resetTimmer();
   }
@@ -76,6 +80,19 @@ public:
     if (snake.getBodyLength() <= 3) {
       game_over = true;
     }
+
+    if (snake.getBodyLength() >= 4 && !isGateOpen) {
+      isGateOpen = true;
+
+      int firstGateRow, firstGateCol;
+      int secondGateRow, secondGateCol;
+      board.getNormalWallCoordinates(firstGateRow, firstGateCol);
+      board.getNormalWallCoordinates(secondGateRow, secondGateCol);
+      firstGate = Gate(firstGateRow, firstGateCol);
+      secondGate = Gate(secondGateRow, secondGateCol);
+      board.add(firstGate);
+      board.add(secondGate);
+    }
   }
 
   void redraw() { board.refrash(); }
@@ -88,11 +105,13 @@ private:
   Snake snake;
   int gLimit, pLimit, gCount, pCount;
   clock_t starttimer, currenttimer; // 타이머
+  Gate firstGate, secondGate;
+  bool isGateOpen;
 
   void resetTimmer() { starttimer = time(NULL); }
   bool checkTimmer(int sec) {
     currenttimer = time(NULL);
-    if((currenttimer - starttimer) > sec) {
+    if ((currenttimer - starttimer) > sec) {
       starttimer = currenttimer;
       return true;
     }
@@ -104,7 +123,8 @@ private:
     snake.addPiece(next);
   }
 
-  void handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
+  void
+  handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
     switch (board.getChatAt(next.getRow(), next.getCol())) {
     case 'A': //* 성장 아이템을 먹었을 때
       destroyItem('A');
@@ -114,6 +134,46 @@ private:
       insertEmpty();
       insertEmpty();
       destroyItem('P');
+      break;
+    }
+    case 'G': //* 게이트를 지나는 경우
+    {
+      int nextRow;
+      int nextCol;
+      if (firstGate.getRow() == next.getRow() &&
+          firstGate.getCol() == next.getCol()) {
+        //* firstGate로 들어온 상황
+        nextRow = secondGate.getRow();
+        nextCol = secondGate.getCol();
+      } else {
+        nextRow = firstGate.getRow();
+        nextCol = firstGate.getCol();
+      }
+
+      //! 이슈: firstGate와 secondGate가 같은 벽에 있다면 에러가 발생한다.
+      //* 출구 게이트가 벽의 가장자리에 있는 경우
+      if (nextRow == 0) {
+        // 상단 게이트에서 아래로 내려오는 경우
+        snake.setDirection(down);
+        next.setCoordinates(nextRow + 1, nextCol);
+      } else if (nextRow == 31) {
+        // 하단 게이트에서 위로 올라오는 경우
+        snake.setDirection(up);
+        next.setCoordinates(nextRow - 1, nextCol);
+      } else if (nextCol == 1) {
+        // 좌측 게이트에서 나와 우측으로 이동하는 경우
+        snake.setDirection(right);
+        next.setCoordinates(nextRow, nextCol + 1);
+      } else if (nextCol == 59) {
+        // 우측 게이트에서 나와 좌측으로 이동하는 경우
+        snake.setDirection(left);
+        next.setCoordinates(nextRow, nextCol - 1);
+      }
+
+      // Todo: 출구 게이트가 중간 벽에 있는 경우
+      // ...
+
+      insertEmpty();
       break;
     }
     case '0': //* 빈 공간을 지나갈 때

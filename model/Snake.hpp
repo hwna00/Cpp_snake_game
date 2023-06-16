@@ -12,6 +12,10 @@ public:
     this->col = col;
     this->icon = '#';
   }
+  void setCoordinates(int row, int col) {
+    this->row = row;
+    this->col = col;
+  }
 };
 
 class Snake {
