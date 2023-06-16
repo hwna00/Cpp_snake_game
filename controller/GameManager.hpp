@@ -6,6 +6,7 @@
 
 #include "../model/Item.hpp"
 #include "../model/Snake.hpp"
+#include "../model/Empty.hpp"
 #include "../view/Board.hpp"
 #include "../view/Drawable.hpp"
 
