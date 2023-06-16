@@ -98,28 +98,28 @@ private:
 
   void handleNextPiece(SnakePiece next) {
     if (growthitem != NULL) {
-      if (next.getCol() != growthitem->getCol() ||
-          next.getRow() != growthitem->getRow()) {
-        int emptyRow = snake.tail().getRow();
-        int emptyCol = snake.tail().getCol();
-        board.add(Empty(emptyRow, emptyCol));
-        snake.removePiece();
-      } else {
-        delete growthitem;
-        growthitem = NULL;
+      switch (board.getChatAt(next.getRow(), next.getCol())) {
+      case 'A': //* 성장 아이템을 먹었을 때
+        destroyItem('A');
+        break;
+      case 'P': //* 독 아이템을 먹었을 때
+      {
+        insertEmpty();
+        insertEmpty();
+        destroyItem('P');
+        break;
+      }
+      case '0': //* 빈 공간을 지나갈 때
+      {
+        insertEmpty();
+        break;
+      }
+      default: //* 빈 공간도 아니고,아이템도 아닌 지역 == 벽 or 스네이크 몸체
+        game_over = true;
+        break;
       }
     }
-    if (poisonitem != NULL) {
-      if (next.getCol() == poisonitem->getCol() &&
-          next.getRow() == poisonitem->getRow()) {
-        int emptyRow = snake.tail().getRow();
-        int emptyCol = snake.tail().getCol();
-        board.add(Empty(emptyRow, emptyCol));
-        snake.removePiece();
-        delete poisonitem;
-        poisonitem = NULL;
-      }
-    }
+
     board.add(next);
     snake.addPiece(next);
   }
@@ -140,5 +140,27 @@ private:
       poisonitem = new PoisonItem(y, x);
       board.add(*poisonitem);
     }
+  }
+
+  void destroyItem(char itemType) {
+    switch (itemType) {
+    case 'A':
+      delete growthitem;
+      growthitem = NULL;
+      break;
+    case 'P':
+      delete poisonitem;
+      poisonitem = NULL;
+      break;
+    default:
+      break;
+    }
+  }
+
+  void insertEmpty() {
+    int emptyRow = snake.tail().getRow();
+    int emptyCol = snake.tail().getCol();
+    board.add(Empty(emptyRow, emptyCol));
+    snake.removePiece();
   }
 };
