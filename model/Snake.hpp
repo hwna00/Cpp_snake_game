@@ -10,7 +10,7 @@ public:
   SnakePiece(int row = 0, int col = 0) {
     this->row = row;
     this->col = col;
-    this->icon  = '#';
+    this->icon = '#';
   }
 };
 
@@ -22,10 +22,18 @@ public:
   Snake() { cur_direction = down; }
   void addPiece(SnakePiece piece) { prev_pieces.push(piece); }
   void removePiece() { prev_pieces.pop(); }
+
+  int getBodyLength() { return prev_pieces.size(); }
+
   SnakePiece tail() { return prev_pieces.front(); }
   SnakePiece head() { return prev_pieces.back(); }
   Direction getDirection() { return cur_direction; }
-  void setDirection(Direction d) { if (cur_direction + d != 0) cur_direction = d; }
+
+  void setDirection(Direction d) {
+    if (cur_direction + d != 0)
+      cur_direction = d;
+  }
+
   SnakePiece nextHead() {
     int row = head().getRow();
     int col = head().getCol();

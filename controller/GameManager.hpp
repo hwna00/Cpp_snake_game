@@ -6,7 +6,6 @@
 
 #include "../model/Item.hpp"
 #include "../model/Snake.hpp"
-#include "../model/Empty.hpp"
 #include "../view/Board.hpp"
 #include "../view/Drawable.hpp"
 
@@ -19,7 +18,10 @@ public:
     initailize();
   }
 
-  ~GameManager() { delete growthitem; delete poisonitem; }
+  ~GameManager() {
+    delete growthitem;
+    delete poisonitem;
+  }
 
   void initailize() {
     board.initialize();
@@ -33,8 +35,10 @@ public:
     snake.setDirection(right);
     handleNextPiece(SnakePiece(snake.nextHead()));
 
-    if (growthitem == NULL) createGrowthItem();
-    if (poisonitem == NULL) createPoisonItem();
+    if (growthitem == NULL)
+      createGrowthItem();
+    if (poisonitem == NULL)
+      createPoisonItem();
   }
 
   void processInput() {
@@ -71,8 +75,14 @@ public:
   void updateState() {
     handleNextPiece(snake.nextHead());
 
-    if (growthitem == NULL) createGrowthItem();
-    if (poisonitem == NULL) createPoisonItem();
+    if (growthitem == NULL)
+      createGrowthItem();
+    if (poisonitem == NULL)
+      createPoisonItem();
+
+    if (snake.getBodyLength() <= 3) {
+      game_over = true;
+    }
   }
 
   void redraw() { board.refrash(); }
@@ -88,18 +98,20 @@ private:
 
   void handleNextPiece(SnakePiece next) {
     if (growthitem != NULL) {
-      if (next.getCol() != growthitem->getCol() || next.getRow() != growthitem->getRow()) {
+      if (next.getCol() != growthitem->getCol() ||
+          next.getRow() != growthitem->getRow()) {
         int emptyRow = snake.tail().getRow();
         int emptyCol = snake.tail().getCol();
         board.add(Empty(emptyRow, emptyCol));
         snake.removePiece();
-      }else {
+      } else {
         delete growthitem;
         growthitem = NULL;
       }
     }
     if (poisonitem != NULL) {
-      if (next.getCol() == poisonitem->getCol() && next.getRow() == poisonitem->getRow()) {
+      if (next.getCol() == poisonitem->getCol() &&
+          next.getRow() == poisonitem->getRow()) {
         int emptyRow = snake.tail().getRow();
         int emptyCol = snake.tail().getCol();
         board.add(Empty(emptyRow, emptyCol));
@@ -123,10 +135,10 @@ private:
 
   void createPoisonItem() {
     if (poisonitem == NULL) {
-        int y, x;
-        board.getEmptyCoordinates(y, x);
-        poisonitem = new PoisonItem(y, x);
-        board.add(*poisonitem);
+      int y, x;
+      board.getEmptyCoordinates(y, x);
+      poisonitem = new PoisonItem(y, x);
+      board.add(*poisonitem);
     }
   }
 };
