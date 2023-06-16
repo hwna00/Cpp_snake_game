@@ -90,14 +90,14 @@ public:
     if (snake.getBodyLength() >= 4 && !isGateOpen) {
       isGateOpen = true;
 
-      int inGateRow, inGateCol;
-      int outGateRow, outGateCol;
-      board.getNormalWallCoordinates(inGateRow, inGateCol);
-      board.getNormalWallCoordinates(outGateRow, outGateCol);
-      inGate = Gate(inGateRow, inGateCol);
-      outGate = Gate(outGateRow, outGateCol);
-      board.add(inGate);
-      board.add(outGate);
+      int firstGateRow, firstGateCol;
+      int secondGateRow, secondGateCol;
+      board.getNormalWallCoordinates(firstGateRow, firstGateCol);
+      board.getNormalWallCoordinates(secondGateRow, secondGateCol);
+      firstGate = Gate(firstGateRow, firstGateCol);
+      secondGate = Gate(secondGateRow, secondGateCol);
+      board.add(firstGate);
+      board.add(secondGate);
     }
   }
 
@@ -111,7 +111,7 @@ private:
   GrowthItem *growthitem;
   PoisonItem *poisonitem;
   Snake snake;
-  Gate inGate, outGate;
+  Gate firstGate, secondGate;
   bool isGateOpen;
 
   void handleNextPiece(SnakePiece next) {
@@ -130,20 +130,20 @@ private:
       case 'G': //* 게이트를 지나는 경우
       {
         //! 이슈: 게이트를 지나는 중에 방향키를 누르면 방향이 바뀌어 버린다.
-        //! 이슈: inGate와 outGate가 같은 벽에 있다면 에러가 발생한다.
+        //! 이슈: firstGate와 secondGate가 같은 벽에 있다면 에러가 발생한다.
         int nextRow;
         int nextCol;
-        if (inGate.getRow() == next.getRow() &&
-            inGate.getCol() == next.getCol()) {
-          // Todo inGate로 들어온 상황
-          nextRow = outGate.getRow();
-          nextCol = outGate.getCol();
+        if (firstGate.getRow() == next.getRow() &&
+            firstGate.getCol() == next.getCol()) {
+          // Todo: firstGate로 들어온 상황
+          nextRow = secondGate.getRow();
+          nextCol = secondGate.getCol();
         } else {
-          nextRow = inGate.getRow();
-          nextCol = inGate.getCol();
+          nextRow = firstGate.getRow();
+          nextCol = firstGate.getCol();
         }
 
-        // Todo: outGate가 벽의 가장자리에 있는 경우
+        // Todo: secondGate가 벽의 가장자리에 있는 경우
         if (nextRow == 0) {
           // 상단 게이트에서 아래로 내려오는 경우
           snake.setDirection(down);
@@ -161,6 +161,8 @@ private:
           snake.setDirection(left);
           next = SnakePiece(nextRow, nextCol);
         }
+
+        // Todo: secondGate가 중간 벽에 있는 경우
 
         insertEmpty();
         break;
