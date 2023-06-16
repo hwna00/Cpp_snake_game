@@ -87,7 +87,7 @@ public:
       game_over = true;
     }
 
-    if (snake.getBodyLength() >= 5 && !isGateOpen) {
+    if (snake.getBodyLength() >= 4 && !isGateOpen) {
       isGateOpen = true;
 
       int inGateRow, inGateCol;
@@ -115,7 +115,7 @@ private:
   bool isGateOpen;
 
   void handleNextPiece(SnakePiece next) {
-    if (growthitem != NULL) {
+    if (growthitem != NULL || poisonitem != NULL) {
       switch (board.getChatAt(next.getRow(), next.getCol())) {
       case 'A': //* 성장 아이템을 먹었을 때
         destroyItem('A');
@@ -127,12 +127,50 @@ private:
         destroyItem('P');
         break;
       }
+      case 'G': //* 게이트를 지나는 경우
+      {
+        //! 이슈: 게이트를 지나는 중에 방향키를 누르면 방향이 바뀌어 버린다.
+        //! 이슈: inGate와 outGate가 같은 벽에 있다면 에러가 발생한다.
+        int nextRow;
+        int nextCol;
+        if (inGate.getRow() == next.getRow() &&
+            inGate.getCol() == next.getCol()) {
+          // Todo inGate로 들어온 상황
+          nextRow = outGate.getRow();
+          nextCol = outGate.getCol();
+        } else {
+          nextRow = inGate.getRow();
+          nextCol = inGate.getCol();
+        }
+
+        // Todo: outGate가 벽의 가장자리에 있는 경우
+        if (nextRow == 0) {
+          // 상단 게이트에서 아래로 내려오는 경우
+          snake.setDirection(down);
+          next = SnakePiece(nextRow, nextCol);
+        } else if (nextRow == 31) {
+          // 하단 게이트에서 위로 올라오는 경우
+          snake.setDirection(up);
+          next = SnakePiece(nextRow, nextCol);
+        } else if (nextCol == 1) {
+          // 좌측 게이트에서 나와 우측으로 이동하는 경우
+          snake.setDirection(right);
+          next = SnakePiece(nextRow, nextCol);
+        } else if (nextCol == 59) {
+          // 우측 게이트에서 나와 좌측으로 이동하는 경우
+          snake.setDirection(left);
+          next = SnakePiece(nextRow, nextCol);
+        }
+
+        insertEmpty();
+        break;
+      }
       case '0': //* 빈 공간을 지나갈 때
       {
         insertEmpty();
         break;
       }
-      default: //* 빈 공간도 아니고,아이템도 아닌 지역 == 벽 or 스네이크 몸체
+      default: //* 빈 공간도 아니고, 아이템도 아닌 지역 == 벽 or 스네이크 몸체
         game_over = true;
         break;
       }
