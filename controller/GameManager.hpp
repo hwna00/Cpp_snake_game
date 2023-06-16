@@ -106,25 +106,14 @@ private:
         break;
       case 'P': //* 독 아이템을 먹었을 때
       {
-        int emptyRow = snake.tail().getRow();
-        int emptyCol = snake.tail().getCol();
-        board.add(Empty(emptyRow, emptyCol));
-        snake.removePiece();
-
-        emptyRow = snake.tail().getRow();
-        emptyCol = snake.tail().getCol();
-        board.add(Empty(emptyRow, emptyCol));
-        snake.removePiece();
-
+        insertEmpty();
+        insertEmpty();
         destroyItem('P');
         break;
       }
       case '0': //* 빈 공간을 지나갈 때
       {
-        int emptyRow = snake.tail().getRow();
-        int emptyCol = snake.tail().getCol();
-        board.add(Empty(emptyRow, emptyCol));
-        snake.removePiece();
+        insertEmpty();
         break;
       }
       default: //* 빈 공간도 아니고,아이템도 아닌 지역 == 벽 or 스네이크 몸체
@@ -168,5 +157,12 @@ private:
     default:
       break;
     }
+  }
+
+  void insertEmpty() {
+    int emptyRow = snake.tail().getRow();
+    int emptyCol = snake.tail().getCol();
+    board.add(Empty(emptyRow, emptyCol));
+    snake.removePiece();
   }
 };
