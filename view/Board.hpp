@@ -108,9 +108,11 @@ public:
   char getChatAt(int row, int col) { return m.getData(row, col); }
 
   void setTimeout(int timeout) { wtimeout(board_win, timeout); }
-
+  
+  int getBCnt() { return m.getBCnt(); }
   int getGrowthCnt() { return m.getGrowthCnt(); }
   int getPoisonCnt() { return m.getPoisonCnt(); }
+  int getGateCnt() { return m.getGateCnt(); }
 
   int getCol() { return col; }
   int getRow() { return row; }

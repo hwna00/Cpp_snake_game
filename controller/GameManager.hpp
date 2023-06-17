@@ -12,25 +12,30 @@
 #include "../model/Snake.hpp"
 #include "../view/Board.hpp"
 #include "../view/ScoreBoard.hpp"
+#include "../view/MissionBoard.hpp"
 #include "../view/Drawable.hpp"
 
 class GameManager {
 private:
-  Board board; ScoreBoard scoreboard;
+  Board board; ScoreBoard scoreboard; MissionBoard missionboard;
   bool game_over;
   Snake snake;
-  int gLimit, pLimit, gCount, pCount, gateCount, gateCnt;
+  int bLimit, gLimit, pLimit, gateLimit, gCount, pCount, gateCount, gateCnt;
   clock_t starttimer, currenttimer; // 타이머
   Gate firstGate, secondGate;
-  bool isGateOpen, isEnterGate;
+  bool isGateOpen, isEnterGate, isMb, isMgi, isMpi, isMgate;
 
 public:
   GameManager(int level) {
     board = Board(level);
     scoreboard = ScoreBoard();
+    bLimit = board.getBCnt();
     gLimit = board.getGrowthCnt();
     pLimit = board.getPoisonCnt();
+    gateLimit = board.getGateCnt();
+    missionboard = MissionBoard("20", std::to_string(gLimit).c_str(), std::to_string(pLimit).c_str(), "2");
     gCount = pCount = gateCount = gateCnt = 0;
+    isMb = isMgi = isMpi = isMgate = FALSE;
     initailize();
   }
 
@@ -119,15 +124,22 @@ public:
       board.add(firstGate);
       board.add(secondGate);
     }
-
+    checkMission();
     scoreboard.loadScore(std::to_string(snake.getBodyLength()).c_str(), std::to_string(gCount).c_str(), std::to_string(pCount).c_str(), std::to_string(gateCount).c_str());
+    missionboard.loadMission(isMb, isMgi, isMpi, isMgate);
   }
 
-  void redraw() { board.refrash(); scoreboard.refrash(); }
+  void redraw() { board.refrash(); scoreboard.refrash(); missionboard.refrash(); }
 
   bool isOver() { return game_over; }
 
 private:
+  void checkMission() {
+    if (snake.getBodyLength() > bLimit - 1) isMb = true;
+    if (gCount > gLimit-1) isMgi = true;
+    if (pCount > pLimit-1) isMpi = true;
+    if (gateCount > gateLimit-1) isMgate = true;
+  }
 
   void resetTimmer() { starttimer = time(NULL); }
   bool checkTimmer(int sec) {
@@ -144,8 +156,7 @@ private:
     snake.addPiece(next);
   }
 
-  void
-  handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
+  void handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
     switch (board.getChatAt(next.getRow(), next.getCol())) {
     case 'A': //* 성장 아이템을 먹었을 때
       gCount++;
@@ -225,13 +236,13 @@ private:
 
   void createItem() {
     int gc = 0, pc = 0;
-    while (gc < gLimit) {
+    while (gc < 3) {
       int y, x;
       board.getEmptyCoordinates(y, x);
       board.add(GrowthItem(y, x));
       gc++;
     }
-    while (pc < pLimit) {
+    while (pc < 3) {
       int y, x;
       board.getEmptyCoordinates(y, x);
       board.add(PoisonItem(y, x));
