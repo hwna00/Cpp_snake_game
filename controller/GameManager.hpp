@@ -11,13 +11,15 @@
 #include "../model/Item.hpp"
 #include "../model/Snake.hpp"
 #include "../view/Board.hpp"
-#include "../view/ScoreBoard.hpp"
-#include "../view/MissionBoard.hpp"
 #include "../view/Drawable.hpp"
+#include "../view/MissionBoard.hpp"
+#include "../view/ScoreBoard.hpp"
 
 class GameManager {
 private:
-  Board board; ScoreBoard scoreboard; MissionBoard missionboard;
+  Board board;
+  ScoreBoard scoreboard;
+  MissionBoard missionboard;
   bool game_over;
   Snake snake;
   int bLimit, gLimit, pLimit, gateLimit, gCount, pCount, gateCount, gateCnt;
@@ -33,7 +35,8 @@ public:
     gLimit = board.getGrowthCnt();
     pLimit = board.getPoisonCnt();
     gateLimit = board.getGateCnt();
-    missionboard = MissionBoard("20", std::to_string(gLimit).c_str(), std::to_string(pLimit).c_str(), "2");
+    missionboard = MissionBoard("20", std::to_string(gLimit).c_str(),
+                                std::to_string(pLimit).c_str(), "2");
     gCount = pCount = gateCount = gateCnt = 0;
     isMb = isMgi = isMpi = isMgate = FALSE;
     initailize();
@@ -57,32 +60,36 @@ public:
 
   void processInput() {
     chtype input = board.getInput();
-    switch (input) {
-    case 'w':
-    case KEY_UP:
-      snake.setDirection(up);
-      break;
-    case 'a':
-    case KEY_LEFT:
-      snake.setDirection(left);
-      break;
-    case 's':
-    case KEY_DOWN:
-      snake.setDirection(down);
-      break;
-    case 'd':
-    case KEY_RIGHT:
-      snake.setDirection(right);
-      break;
-    case 'p':
-      board.setTimeout(-1); // -1은 유저가 다음 key를 입력할 때까지 blocking
-      while (board.getInput() != 'p') {
-      }
-      board.setTimeout(500);
-      break;
+    try {
+      switch (input) {
+      case 'w':
+      case KEY_UP:
+        snake.setDirection(up);
+        break;
+      case 'a':
+      case KEY_LEFT:
+        snake.setDirection(left);
+        break;
+      case 's':
+      case KEY_DOWN:
+        snake.setDirection(down);
+        break;
+      case 'd':
+      case KEY_RIGHT:
+        snake.setDirection(right);
+        break;
+      case 'p':
+        board.setTimeout(-1); // -1은 유저가 다음 key를 입력할 때까지 blocking
+        while (board.getInput() != 'p') {
+        }
+        board.setTimeout(500);
+        break;
 
-    default:
-      break;
+      default:
+        break;
+      }
+    } catch (int e) {
+      game_over = true;
     }
   }
 
@@ -125,20 +132,31 @@ public:
       board.add(secondGate);
     }
     checkMission();
-    scoreboard.loadScore(std::to_string(snake.getBodyLength()).c_str(), std::to_string(gCount).c_str(), std::to_string(pCount).c_str(), std::to_string(gateCount).c_str());
+    scoreboard.loadScore(std::to_string(snake.getBodyLength()).c_str(),
+                         std::to_string(gCount).c_str(),
+                         std::to_string(pCount).c_str(),
+                         std::to_string(gateCount).c_str());
     missionboard.loadMission(isMb, isMgi, isMpi, isMgate);
   }
 
-  void redraw() { board.refrash(); scoreboard.refrash(); missionboard.refrash(); }
+  void redraw() {
+    board.refrash();
+    scoreboard.refrash();
+    missionboard.refrash();
+  }
 
   bool isOver() { return game_over; }
 
 private:
   void checkMission() {
-    if (snake.getBodyLength() > bLimit - 1) isMb = true;
-    if (gCount > gLimit-1) isMgi = true;
-    if (pCount > pLimit-1) isMpi = true;
-    if (gateCount > gateLimit-1) isMgate = true;
+    if (snake.getBodyLength() > bLimit - 1)
+      isMb = true;
+    if (gCount > gLimit - 1)
+      isMgi = true;
+    if (pCount > pLimit - 1)
+      isMpi = true;
+    if (gateCount > gateLimit - 1)
+      isMgate = true;
   }
 
   void resetTimmer() { starttimer = time(NULL); }
@@ -156,7 +174,8 @@ private:
     snake.addPiece(next);
   }
 
-  void handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
+  void
+  handleNextPiece(SnakePiece next) { // 진행 단계에서 snake를 이동시키는 함수
     switch (board.getChatAt(next.getRow(), next.getCol())) {
     case 'A': //* 성장 아이템을 먹었을 때
       gCount++;

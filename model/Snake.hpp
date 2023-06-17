@@ -34,7 +34,9 @@ public:
   Direction getDirection() { return cur_direction; }
 
   void setDirection(Direction d) {
-    if (cur_direction + d != 0)
+    if (cur_direction + d == 0)
+      throw cur_direction + d;
+    else
       cur_direction = d;
   }
 
