@@ -19,10 +19,10 @@ private:
   Board board; ScoreBoard scoreboard;
   bool game_over;
   Snake snake;
-  int gLimit, pLimit, gCount, pCount, gateCount;
+  int gLimit, pLimit, gCount, pCount, gateCount, gateCnt;
   clock_t starttimer, currenttimer; // 타이머
   Gate firstGate, secondGate;
-  bool isGateOpen;
+  bool isGateOpen, isEnterGate;
 
 public:
   GameManager(int level) {
@@ -128,14 +128,6 @@ public:
   bool isOver() { return game_over; }
 
 private:
-  Board board;
-  bool game_over;
-  Snake snake;
-  int gLimit, pLimit, gCount, pCount;
-  clock_t starttimer, currenttimer; // 타이머
-  Gate firstGate, secondGate;
-  bool isGateOpen, isEnterGate;
-  int gateCnt;
 
   void resetTimmer() { starttimer = time(NULL); }
   bool checkTimmer(int sec) {
