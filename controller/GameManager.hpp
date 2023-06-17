@@ -140,7 +140,7 @@ public:
   }
 
   void redraw() {
-    board.refrash();
+    board.refresh();
     scoreboard.refrash();
     missionboard.refrash();
   }

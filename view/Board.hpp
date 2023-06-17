@@ -23,12 +23,12 @@ public:
   void initialize() {
     initColor();
     initBoarder();
-    refrash();
+    refresh();
   }
 
   chtype getInput() { return wgetch(board_win); }
 
-  void refrash() { wrefresh(board_win); }
+  void refresh() { wrefresh(board_win); }
 
   void initColor() {
     init_pair(0, 1, 0); // Deafult (블랙, 블랙)
@@ -108,7 +108,7 @@ public:
   char getChatAt(int row, int col) { return m.getData(row, col); }
 
   void setTimeout(int timeout) { wtimeout(board_win, timeout); }
-  
+
   int getBCnt() { return m.getBCnt(); }
   int getGrowthCnt() { return m.getGrowthCnt(); }
   int getPoisonCnt() { return m.getPoisonCnt(); }
