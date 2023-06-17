@@ -10,7 +10,7 @@
 
 
 class Map {
-int level, poisonCnt, growthCnt;
+int level, bCnt, poisonCnt, growthCnt, gateCnt;
 char data[ROWS][COLS];
 public:
     Map(int level = 0) : level(level), growthCnt(level), poisonCnt(level){
@@ -39,8 +39,10 @@ public:
             readFile.getline(temp, 120);
             height++;
         }
-        poisonCnt = temp[0] - '0';
-        growthCnt = temp[1] - '0';
+        bCnt = temp[0] - '0';
+        poisonCnt = temp[1] - '0';
+        growthCnt = temp[2] - '0';
+        gateCnt = temp[3] - '0';
 
         // 정상적으로 데이터를 수신하였는지 log 파일 생성
         std::string path = "src/debug/stage.txt";
@@ -61,9 +63,10 @@ public:
 
     int getLevel() {return level;}
 
-    // 사과, 독사과 개수 레벨 별 제한
     int getGrowthCnt() {return growthCnt;}
     int getPoisonCnt() {return poisonCnt;}
+    int getBCnt() {return bCnt;}
+    int getGateCnt() {return gateCnt;}
 
     void setData(int row, int col, char c) {data[row][col] = c;}
 
