@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "../model/Border.hpp"
 #include "../model/Empty.hpp"
 #include "../model/Gate.hpp"
 #include "../model/Item.hpp"
@@ -29,14 +30,14 @@ public:
     scoreboard = ScoreBoard();
     gLimit = board.getGrowthCnt();
     pLimit = board.getPoisonCnt();
-    gCount = pCount = gateCount = 0;
+    gCount = pCount = gateCount = gateCnt = 0;
     initailize();
   }
 
   void initailize() {
     board.initialize();
     game_over = false;
-    isGateOpen = false;
+    isGateOpen = isEnterGate = false;
     srand(time(NULL));
     snake.setDirection(down);
     initSnake(SnakePiece(1, 2));
@@ -92,8 +93,22 @@ public:
       game_over = true;
     }
 
+    if (isGateOpen && isEnterGate && gateCnt >= 0) {
+      gateCnt--;
+    }
+    if (isGateOpen && isEnterGate && gateCnt == 0) {
+      isGateOpen = false;
+      isEnterGate = false;
+      Border Wall1(firstGate.getRow(), firstGate.getCol());
+      Border Wall2(secondGate.getRow(), secondGate.getCol());
+      board.add(Wall1);
+      board.add(Wall2);
+    }
+
     if (snake.getBodyLength() >= 4 && !isGateOpen) {
       isGateOpen = true;
+      //* snake 몸체의 길이 + 5 만큼 움직일 동안 게이트를 오픈한다.
+      gateCnt = snake.getBodyLength() + 5;
 
       int firstGateRow, firstGateCol;
       int secondGateRow, secondGateCol;
@@ -113,6 +128,14 @@ public:
   bool isOver() { return game_over; }
 
 private:
+  Board board;
+  bool game_over;
+  Snake snake;
+  int gLimit, pLimit, gCount, pCount;
+  clock_t starttimer, currenttimer; // 타이머
+  Gate firstGate, secondGate;
+  bool isGateOpen, isEnterGate;
+  int gateCnt;
 
   void resetTimmer() { starttimer = time(NULL); }
   bool checkTimmer(int sec) {
@@ -147,6 +170,7 @@ private:
     case 'G': //* 게이트를 지나는 경우
     {
       gateCount++;
+      isEnterGate = true;
       int nextRow;
       int nextCol;
       if (firstGate.getRow() == next.getRow() &&
